@@ -9,9 +9,10 @@ use warnings;
 use strict;
 use Carp;
 
+use POSIX ":sys_wait_h";
 use IPC::Open3;
 use Errno qw( :POSIX );
-use Time::HiRes qw( time );
+use Time::HiRes qw( time sleep );
 use IO::Poll 0.04 qw( POLLIN POLLERR POLLHUP POLLOUT );
 
 use constant { MAX_BUF => 2 ** 20, MULTIPLEX => 2 ** 5 }; 
@@ -133,7 +134,7 @@ sub run
     my $multiplex = $param{multiplex} || MULTIPLEX;
     my $max_buf = $param{max_buf} || MAX_BUF;
     my @io = qw( stdin stdout stderr );
-    my ( %error, %result, %lookup );
+    my ( %error, %result, %lookup, %pid );
     my $epoch = time;
     my $current = 0;
 
@@ -160,18 +161,20 @@ sub run
 
             @command = map { $_ =~ s/{}/$target/g; $_; } @command;
 
-            eval { IPC::Open3::open3( @handle, @command ) };
+            my $pid = eval { IPC::Open3::open3( @handle, @command ); };
 
             if ( $@ )
             {
                 $error{$target} = "open3: $@";
                 next;
             }
+            $pid{$pid} = 1;
 
             $lookup{target}{$target} = +
             {
                 handle => \@handle,
                 epoch => $time,
+                pid => $pid,
             };
 
             my %config =
@@ -271,6 +274,7 @@ sub run
             next if ! $timeout || $timeout > $time - $lookup->{epoch};
 
             $status = $error{$target} = 'timeout';
+            die "kill 9, $lookup{pid}" unless kill 9, $lookup{pid};
 
             for my $handle ( @$handle )
             {
@@ -285,6 +289,13 @@ sub run
         }
     }
 
+    while ( keys %pid )
+    {
+        my $pid = waitpid( -1, WNOHANG );
+        sleep 0.1, next unless $pid > 0;
+        delete $pid{$pid};
+    }
+  
     $this->{result} = \%result if %result;
     $this->{error} = \%error if %error;
 

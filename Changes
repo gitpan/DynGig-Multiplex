@@ -2,3 +2,6 @@ Revision history for DynGig-Multiplex
 
 0.01    2010-12-21
         First version.
+
+0.02    2012-03-13
+        Multiplex::CMD.pm - zombie fix for Linux by Boris Senderzon
