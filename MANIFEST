@@ -2,8 +2,6 @@ Changes
 MANIFEST
 Makefile.PL
 README
-lib/DynGig/Multiplex/CLI/CMD.pm
-lib/DynGig/Multiplex/CLI/TCP.pm
 lib/DynGig/Multiplex/CMD.pm
 lib/DynGig/Multiplex/TCP.pm
 lib/DynGig/Multiplex.pm

@@ -7,10 +7,10 @@ package DynGig::Multiplex;
 
 =head1 VERSION
 
-Version 0.02
+Version 1.00
 
 =cut
-our $VERSION = '0.02';
+our $VERSION = '1.00';
 
 =head1 MODULES
 
@@ -21,14 +21,6 @@ Multiplexed Fork Client
 =head2 DynGig::Multiplex::TCP 
 
 Multiplexed TCP Client
-
-=head2 DynGig::Multiplex::CLI::CMD 
-
-CLI for DynGig::Multiplex::CMD
-
-=head2 DynGig::Multiplex::CLI::TCP 
-
-CLI for DynGig::Multiplex::TCP
 
 =head1 AUTHOR
 
