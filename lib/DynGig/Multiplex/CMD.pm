@@ -274,7 +274,8 @@ sub run
             next if ! $timeout || $timeout > $time - $lookup->{epoch};
 
             $status = $error{$target} = 'timeout';
-            die "kill 9, $lookup{pid}" unless kill 9, $lookup{pid};
+            die sprintf( "kill 9, %s", $lookup{pid} )
+                unless kill 9, $lookup->{pid};
 
             for my $handle ( @$handle )
             {
