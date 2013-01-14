@@ -293,6 +293,7 @@ sub run
     while ( keys %pid )
     {
         my $pid = waitpid( -1, WNOHANG );
+        last if $! == ECHILD;
         sleep 0.1, next unless $pid > 0;
         delete $pid{$pid};
     }
