@@ -1,5 +1,9 @@
 Revision history for DynGig-Multiplex
 
+1.03    2013-12-27
+        wangjian's connect bug(line 67) 
+        and dns resolve bug(line 212) fix in TCP.pm
+
 1.02    2013-01-10
         wangjian's waitpid bug fix in CMD.pm
 

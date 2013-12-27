@@ -12,7 +12,7 @@ use Carp;
 use Fcntl;
 use Socket;
 use Errno qw( :POSIX );
-use Time::HiRes qw( time );
+use Time::HiRes qw( time sleep );
 use IO::Poll 0.04 qw( POLLIN POLLERR POLLHUP POLLOUT );
 
 use constant { MAX_BUF => 2 ** 20, MULTIPLEX => 2 ** 5 }; 
@@ -63,8 +63,13 @@ sub new
             croak "$error for port" unless $port && ! ref $port
                 && $port =~ /^\d+$/o && $port < 65536;
 
-            croak "$error for host"
-                unless $host{$host} || ( $host{$host} = inet_aton $host );
+            for( 0..1 )
+            {
+                $host{$host} = inet_aton $host;
+                last if defined $host{$host};
+                sleep 0.2;
+            }
+            croak "$error for host $!" unless defined $host{$host};
 
             croak "$error for host:port"
                 unless $addr{$server}[0] = sockaddr_in( $port, $host{$host} );
@@ -204,7 +209,18 @@ sub run
                 next;
             }
 
-            connect $socket, $addr->[0];
+            for ( 0..1 )
+            {
+                connect( $socket, $addr->[0] );
+                last if $socket;
+                sleep 0.2;
+            }
+
+            unless ( $socket )
+            {
+                &$index( \%error, "connect $!", $server );
+                next;
+            }
 
             $lookup{server}{$server} = +
             {
